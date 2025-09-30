@@ -106,6 +106,11 @@
                                     <i class="fas fa-chalkboard-teacher me-2"></i>Faculty
                                 </button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="syllabus-tab" data-bs-toggle="tab" data-bs-target="#syllabus" type="button" role="tab">
+                                    <i class="fas fa-book me-2"></i>Syllabus
+                                </button>
+                            </li>
                         </ul>
                     </div>
 
@@ -334,6 +339,113 @@
                                         <div class="card-body">
                                             <div id="facultyMembers">
                                                 <!-- Faculty members will be loaded here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Syllabus Tab -->
+                        <div class="tab-pane fade" id="syllabus" role="tabpanel">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="card shadow">
+                                        <div class="card-header bg-success text-white">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-book me-2"></i>Manage Syllabus
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="syllabusForm" enctype="multipart/form-data">
+                                                <input type="hidden" id="syllabusId" name="id">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="syllabusGrade" class="form-label">Grade *</label>
+                                                            <select class="form-control" id="syllabusGrade" name="grade" required>
+                                                                <option value="">Select Grade</option>
+                                                                <option value="Nursery">Nursery</option>
+                                                                <option value="LKG">LKG</option>
+                                                                <option value="UKG">UKG</option>
+                                                                <option value="Class 1">Class 1</option>
+                                                                <option value="Class 2">Class 2</option>
+                                                                <option value="Class 3">Class 3</option>
+                                                                <option value="Class 4">Class 4</option>
+                                                                <option value="Class 5">Class 5</option>
+                                                                <option value="Class 6">Class 6</option>
+                                                                <option value="Class 7">Class 7</option>
+                                                                <option value="Class 8">Class 8</option>
+                                                                <option value="Class 9">Class 9</option>
+                                                                <option value="Class 10">Class 10</option>
+                                                                <option value="Class 11">Class 11</option>
+                                                                <option value="Class 12">Class 12</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="syllabusSubject" class="form-label">Subject *</label>
+                                                            <input type="text" class="form-control" id="syllabusSubject" name="subject" placeholder="Mathematics, English, Science, etc." required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="syllabusTitle" class="form-label">Title *</label>
+                                                    <input type="text" class="form-control" id="syllabusTitle" name="title" placeholder="Syllabus title" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="syllabusDescription" class="form-label">Description</label>
+                                                    <textarea class="form-control" id="syllabusDescription" name="description" rows="3" placeholder="Brief description of the syllabus content"></textarea>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="syllabusPdf" class="form-label">PDF File</label>
+                                                            <input type="file" class="form-control" id="syllabusPdf" name="pdf" accept=".pdf">
+                                                            <div class="form-text">Upload syllabus PDF file. Max size: 10MB</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="syllabusOrder" class="form-label">Display Order</label>
+                                                            <input type="number" class="form-control" id="syllabusOrder" name="display_order" placeholder="0" min="0">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="syllabusPublished" name="published" checked>
+                                                        <label class="form-check-label" for="syllabusPublished">
+                                                            Published (visible to public)
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" class="btn btn-success" id="syllabusSubmitBtn">
+                                                        <i class="fas fa-save me-2"></i>Save Syllabus
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary" id="syllabusCancelBtn" style="display: none;" onclick="cancelSyllabusEdit()">
+                                                        <i class="fas fa-times me-2"></i>Cancel
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Syllabus List -->
+                                    <div class="card shadow mt-4">
+                                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-book me-2"></i>Syllabus List
+                                            </h5>
+                                            <button class="btn btn-light btn-sm" onclick="loadSyllabi()">
+                                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="syllabiList">
+                                                <!-- Syllabi will be loaded here -->
                                             </div>
                                         </div>
                                     </div>
@@ -698,6 +810,7 @@
             loadNotices();
             loadGallery();
             loadFaculty();
+            loadSyllabi();
         }
 
         // Function to show login error
@@ -1119,6 +1232,241 @@
         function showErrorAlert(message) {
             alert(`❌ ${message}`);
         }
+
+        // Syllabus Management Functions
+        async function loadSyllabi() {
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('syllabi')
+                    .select('*')
+                    .order('grade', { ascending: true })
+                    .order('display_order', { ascending: true });
+
+                if (error) throw error;
+
+                const syllabiList = document.getElementById('syllabiList');
+                if (data.length === 0) {
+                    syllabiList.innerHTML = '<p class="text-muted text-center">No syllabi found. Add your first syllabus above.</p>';
+                    return;
+                }
+
+                syllabiList.innerHTML = data.map(syllabus => `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="card-title mb-1">
+                                        ${syllabus.title}
+                                        ${syllabus.published ? '<span class="badge bg-success ms-2">Published</span>' : '<span class="badge bg-secondary ms-2">Draft</span>'}
+                                    </h6>
+                                    <p class="card-text text-muted mb-1">
+                                        <strong>Grade:</strong> ${syllabus.grade} | 
+                                        <strong>Subject:</strong> ${syllabus.subject}
+                                    </p>
+                                    ${syllabus.description ? `<p class="card-text small">${syllabus.description}</p>` : ''}
+                                    <small class="text-muted">
+                                        Created: ${new Date(syllabus.created_at).toLocaleDateString()}
+                                        ${syllabus.pdf_url ? ' | <a href="${syllabus.pdf_url}" target="_blank" class="text-decoration-none"><i class="fas fa-file-pdf me-1"></i>View PDF</a>' : ''}
+                                    </small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button class="btn btn-sm btn-outline-primary me-2" onclick="editSyllabus('${syllabus.id}')">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSyllabus('${syllabus.id}')">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading syllabi:', error);
+                showErrorAlert('Failed to load syllabi: ' + error.message);
+            }
+        }
+
+        async function saveSyllabus(event) {
+            event.preventDefault();
+            if (!supabase) {
+                showErrorAlert('Supabase not initialized');
+                return;
+            }
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const syllabusId = formData.get('id');
+            const pdfFile = formData.get('pdf');
+
+            try {
+                let pdfUrl = null;
+                
+                // Upload PDF if provided
+                if (pdfFile && pdfFile.size > 0) {
+                    const fileExt = pdfFile.name.split('.').pop();
+                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                    
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('syllabus-files')
+                        .upload(fileName, pdfFile);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('syllabus-files')
+                        .getPublicUrl(fileName);
+                    
+                    pdfUrl = publicUrl;
+                }
+
+                const syllabusData = {
+                    grade: formData.get('grade'),
+                    subject: formData.get('subject'),
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    display_order: parseInt(formData.get('display_order')) || 0,
+                    published: formData.get('published') === 'on',
+                    updated_at: new Date().toISOString()
+                };
+
+                if (pdfUrl) {
+                    syllabusData.pdf_url = pdfUrl;
+                }
+
+                let result;
+                if (syllabusId) {
+                    // Update existing syllabus
+                    result = await supabase
+                        .from('syllabi')
+                        .update(syllabusData)
+                        .eq('id', syllabusId);
+                } else {
+                    // Create new syllabus
+                    result = await supabase
+                        .from('syllabi')
+                        .insert([syllabusData]);
+                }
+
+                if (result.error) throw result.error;
+
+                form.reset();
+                document.getElementById('syllabusCancelBtn').style.display = 'none';
+                document.getElementById('syllabusId').value = '';
+                
+                showSuccessModal(
+                    'Syllabus Saved!',
+                    'Your syllabus has been successfully saved and is now available for management.'
+                );
+                
+                loadSyllabi();
+            } catch (error) {
+                console.error('Error saving syllabus:', error);
+                showErrorAlert('Failed to save syllabus: ' + error.message);
+            }
+        }
+
+        async function editSyllabus(id) {
+            if (!supabase) {
+                showErrorAlert('Supabase not initialized');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('syllabi')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                // Populate form with syllabus data
+                document.getElementById('syllabusId').value = data.id;
+                document.getElementById('syllabusGrade').value = data.grade;
+                document.getElementById('syllabusSubject').value = data.subject;
+                document.getElementById('syllabusTitle').value = data.title;
+                document.getElementById('syllabusDescription').value = data.description || '';
+                document.getElementById('syllabusOrder').value = data.display_order || 0;
+                document.getElementById('syllabusPublished').checked = data.published;
+
+                // Show cancel button
+                document.getElementById('syllabusCancelBtn').style.display = 'inline-block';
+
+                // Scroll to form
+                document.getElementById('syllabusForm').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error loading syllabus for edit:', error);
+                showErrorAlert('Failed to load syllabus: ' + error.message);
+            }
+        }
+
+        async function deleteSyllabus(id) {
+            if (!supabase) {
+                showErrorAlert('Supabase not initialized');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this syllabus? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                // Get syllabus data to delete PDF file
+                const { data: syllabus, error: fetchError } = await supabase
+                    .from('syllabi')
+                    .select('pdf_url')
+                    .eq('id', id)
+                    .single();
+
+                if (fetchError) throw fetchError;
+
+                // Delete from database
+                const { error: deleteError } = await supabase
+                    .from('syllabi')
+                    .delete()
+                    .eq('id', id);
+
+                if (deleteError) throw deleteError;
+
+                // Delete PDF file if exists
+                if (syllabus.pdf_url) {
+                    const fileName = syllabus.pdf_url.split('/').pop();
+                    await supabase.storage
+                        .from('syllabus-files')
+                        .remove([fileName]);
+                }
+
+                showSuccessModal(
+                    'Syllabus Deleted!',
+                    'The syllabus has been successfully deleted.'
+                );
+                
+                loadSyllabi();
+            } catch (error) {
+                console.error('Error deleting syllabus:', error);
+                showErrorAlert('Failed to delete syllabus: ' + error.message);
+            }
+        }
+
+        function cancelSyllabusEdit() {
+            document.getElementById('syllabusForm').reset();
+            document.getElementById('syllabusCancelBtn').style.display = 'none';
+            document.getElementById('syllabusId').value = '';
+        }
+
+        // Add event listener for syllabus form
+        document.addEventListener('DOMContentLoaded', function() {
+            const syllabusForm = document.getElementById('syllabusForm');
+            if (syllabusForm) {
+                syllabusForm.addEventListener('submit', saveSyllabus);
+            }
+        });
     </script>
 </body>
 </html>

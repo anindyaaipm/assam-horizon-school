@@ -6,6 +6,7 @@
     <title>Academics — Assam Horizon Sr. Secondary School</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   </head>
   <body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
@@ -43,100 +44,30 @@
           <p class="text-secondary">Curriculum designed to challenge and inspire across all grades.</p>
         </div>
 
-        <div class="row g-4">
-          <!-- Example of multiple grades -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 card-hover">
-              <div class="card-body">
-                <h5 class="card-title">Grade 1</h5>
-                <ul class="mb-3">
-                  <li>English</li>
-                  <li>Mathematics</li>
-                  <li>EVS</li>
-                  <li>Art & Craft</li>
-                </ul>
-                <a class="btn btn-sm btn-outline-primary" href="#" role="button">Download Syllabus (PDF)</a>
-              </div>
-            </div>
+        <!-- Loading State -->
+        <div id="syllabiLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
+          <p class="mt-3 text-muted">Loading academic syllabi...</p>
+        </div>
 
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 card-hover">
-              <div class="card-body">
-                <h5 class="card-title">Grade 5</h5>
-                <ul class="mb-3">
-                  <li>English</li>
-                  <li>Mathematics</li>
-                  <li>Science</li>
-                  <li>Social Studies</li>
-                </ul>
-                <a class="btn btn-sm btn-outline-primary" href="#" role="button">Download Syllabus (PDF)</a>
-              </div>
-            </div>
-          </div>
+        <!-- Error State -->
+        <div id="syllabiError" class="alert alert-warning text-center" style="display: none;">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <span id="errorMessage">Unable to load syllabi. Please try again later.</span>
+        </div>
 
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 card-hover">
-              <div class="card-body">
-                <h5 class="card-title">Grade 8</h5>
-                <ul class="mb-3">
-                  <li>English</li>
-                  <li>Mathematics</li>
-                  <li>Science</li>
-                  <li>Social Science</li>
-                </ul>
-                <a class="btn btn-sm btn-outline-primary" href="#" role="button">Download Syllabus (PDF)</a>
-              </div>
-            </div>
-          </div>
+        <!-- Dynamic Syllabi Content -->
+        <div id="syllabiContent" class="row g-4" style="display: none;">
+          <!-- Syllabi will be loaded here dynamically -->
+        </div>
 
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 card-hover">
-              <div class="card-body">
-                <h5 class="card-title">Grade 10</h5>
-                <ul class="mb-3">
-                  <li>English</li>
-                  <li>Mathematics</li>
-                  <li>Science</li>
-                  <li>Social Science</li>
-                  <li>Second Language</li>
-                </ul>
-                <a class="btn btn-sm btn-outline-primary" href="#" role="button">Download Syllabus (PDF)</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 card-hover">
-              <div class="card-body">
-                <h5 class="card-title">Grade 11 (Science)</h5>
-                <ul class="mb-3">
-                  <li>Physics</li>
-                  <li>Chemistry</li>
-                  <li>Mathematics / Biology</li>
-                  <li>English</li>
-                  <li>Computer Science</li>
-                </ul>
-                <a class="btn btn-sm btn-outline-primary" href="#" role="button">Download Syllabus (PDF)</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 card-hover">
-              <div class="card-body">
-                <h5 class="card-title">Grade 12 (Commerce)</h5>
-                <ul class="mb-3">
-                  <li>Accountancy</li>
-                  <li>Business Studies</li>
-                  <li>Economics</li>
-                  <li>English</li>
-                  <li>Mathematics</li>
-                </ul>
-                <a class="btn btn-sm btn-outline-primary" href="#" role="button">Download Syllabus (PDF)</a>
-              </div>
-            </div>
-          </div>
+        <!-- Empty State -->
+        <div id="syllabiEmpty" class="text-center py-5" style="display: none;">
+          <i class="fas fa-book fa-3x text-muted mb-3"></i>
+          <h4 class="text-muted">No Syllabi Available</h4>
+          <p class="text-muted">Academic syllabi will be published here soon.</p>
         </div>
       </div>
     </main>
@@ -153,7 +84,144 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="assets/js/main.js"></script>
+    <script>
+        // Initialize Supabase
+        let supabase = null;
+
+        async function initSupabase() {
+            try {
+                const response = await fetch('/api/get-supabase');
+                if (!response.ok) throw new Error('Failed to fetch Supabase credentials');
+                const { url, anonKey } = await response.json();
+                supabase = window.supabase.createClient(url, anonKey);
+            } catch (err) {
+                console.warn('Could not fetch Supabase credentials from /api/get-supabase. Using fallback hardcoded values. This is expected in local static server environments.');
+                // Fallback for local development
+                const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+                const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        }
+
+        async function loadSyllabi() {
+            if (!supabase) {
+                showError('Supabase not initialized');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('syllabi')
+                    .select('*')
+                    .eq('published', true)
+                    .order('grade', { ascending: true })
+                    .order('display_order', { ascending: true });
+
+                if (error) throw error;
+
+                hideAllStates();
+                
+                if (!data || data.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+
+                displaySyllabi(data);
+            } catch (error) {
+                console.error('Error loading syllabi:', error);
+                showError('Failed to load syllabi: ' + error.message);
+            }
+        }
+
+        function displaySyllabi(syllabi) {
+            // Group syllabi by grade
+            const groupedSyllabi = syllabi.reduce((groups, syllabus) => {
+                const grade = syllabus.grade;
+                if (!groups[grade]) {
+                    groups[grade] = [];
+                }
+                groups[grade].push(syllabus);
+                return groups;
+            }, {});
+
+            const contentDiv = document.getElementById('syllabiContent');
+            contentDiv.innerHTML = '';
+
+            // Create cards for each grade
+            Object.keys(groupedSyllabi).sort().forEach(grade => {
+                const gradeSyllabi = groupedSyllabi[grade];
+                const subjects = gradeSyllabi.map(s => s.subject);
+                
+                const cardHtml = `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <h5 class="card-title">${grade}</h5>
+                                <ul class="mb-3">
+                                    ${subjects.map(subject => `<li>${subject}</li>`).join('')}
+                                </ul>
+                                <div class="d-grid gap-2">
+                                    ${gradeSyllabi.map(syllabus => `
+                                        <a class="btn btn-sm btn-outline-primary" 
+                                           href="${syllabus.pdf_url || '#'}" 
+                                           target="_blank" 
+                                           ${!syllabus.pdf_url ? 'disabled' : ''}
+                                           role="button">
+                                            <i class="fas fa-file-pdf me-1"></i>
+                                            ${syllabus.title}
+                                        </a>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                contentDiv.innerHTML += cardHtml;
+            });
+
+            showContent();
+        }
+
+        function hideAllStates() {
+            document.getElementById('syllabiLoading').style.display = 'none';
+            document.getElementById('syllabiError').style.display = 'none';
+            document.getElementById('syllabiContent').style.display = 'none';
+            document.getElementById('syllabiEmpty').style.display = 'none';
+        }
+
+        function showLoading() {
+            hideAllStates();
+            document.getElementById('syllabiLoading').style.display = 'block';
+        }
+
+        function showError(message) {
+            hideAllStates();
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('syllabiError').style.display = 'block';
+        }
+
+        function showContent() {
+            hideAllStates();
+            document.getElementById('syllabiContent').style.display = 'block';
+        }
+
+        function showEmptyState() {
+            hideAllStates();
+            document.getElementById('syllabiEmpty').style.display = 'block';
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Set current year in footer
+            document.getElementById("year").textContent = new Date().getFullYear();
+            
+            showLoading();
+            await initSupabase();
+            await loadSyllabi();
+        });
+    </script>
   </body>
 </html>
 

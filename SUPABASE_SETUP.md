@@ -1,5 +1,111 @@
 # Supabase Setup Guide for Assam Horizon School Website
 
+## Academics Syllabus (Admin-managed)
+
+This section adds a database table and a storage bucket so the Academics page can be driven from the Admin portal.
+
+### 1) Create `syllabi` table
+
+Run in Supabase SQL Editor (ensure the `pgcrypto` extension is enabled for `gen_random_uuid()`):
+
+```sql
+-- Table
+create table if not exists public.syllabi (
+  id uuid primary key default gen_random_uuid(),
+  grade text not null,                -- e.g., "Grade 1", "Class 6"
+  subject text not null,              -- e.g., "Mathematics"
+  title text not null,                -- e.g., "Term 1 Syllabus"
+  description text,
+  pdf_url text,                       -- public URL to the uploaded PDF
+  display_order int default 0,
+  published boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- RLS
+alter table public.syllabi enable row level security;
+
+-- Policies
+-- Public read of published syllabi
+create policy if not exists "Public can read published syllabi"
+on public.syllabi for select
+using (published = true);
+
+-- Admin writes (adjust per your auth model)
+-- If you use Supabase Auth for admins, prefer restricting to authenticated role:
+create policy if not exists "Admins can insert syllabi"
+on public.syllabi for insert
+to authenticated
+with check (true);
+
+create policy if not exists "Admins can update syllabi"
+on public.syllabi for update
+to authenticated
+using (true)
+with check (true);
+
+create policy if not exists "Admins can delete syllabi"
+on public.syllabi for delete
+to authenticated
+using (true);
+
+-- If you are currently not using Supabase Auth for admin login
+-- and rely on the Admin portal's client-only check, you can temporarily
+-- allow anon writes during development. REMOVE BEFORE PRODUCTION.
+-- Uncomment only if needed:
+-- create policy "Dev: anon can write syllabi" on public.syllabi for all to anon using (true) with check (true);
+```
+
+Notes:
+- For production, use Supabase Auth for admins and remove any anon write permissions.
+- You can also create fine-grained policies, e.g., only certain admin emails can write.
+
+### 2) Create `syllabus-files` storage bucket
+
+1. In Supabase Studio → Storage → Create bucket named `syllabus-files`.
+2. Public bucket: Enabled (so PDFs are viewable from the Academics page).
+3. Add policies:
+
+```sql
+-- Public read
+create policy if not exists "Public read syllabus files" on storage.objects
+for select to anon using ( bucket_id = 'syllabus-files' );
+
+-- Admin write (authenticated)
+create policy if not exists "Admins write syllabus files" on storage.objects
+for insert to authenticated with check ( bucket_id = 'syllabus-files' );
+
+create policy if not exists "Admins update syllabus files" on storage.objects
+for update to authenticated using ( bucket_id = 'syllabus-files' ) with check ( bucket_id = 'syllabus-files' );
+
+create policy if not exists "Admins delete syllabus files" on storage.objects
+for delete to authenticated using ( bucket_id = 'syllabus-files' );
+```
+
+### 3) Admin Portal updates (overview)
+
+- Add a new "Syllabus" tab in `admin.html` to CRUD `syllabi` and upload PDFs to the `syllabus-files` bucket.
+- Fields in the form: grade, subject, title, description, PDF file, display_order, published.
+- On create/update: upload PDF → get public URL → save to `pdf_url`.
+- List all entries with edit/delete buttons; sort by `display_order`, then `updated_at desc`.
+
+### 4) Academics page (public) updates (overview)
+
+- Replace hardcoded syllabus cards with a fetch to `public.syllabi` where `published = true`.
+- Group/filter by `grade`; display per subject with a "View Syllabus" button linking to `pdf_url`.
+- Order by `display_order`, then `updated_at desc`.
+
+### 5) Runtime configuration via Vercel (no hardcoded keys)
+
+- Set environment variables in Vercel Project Settings → Environment Variables:
+  - `SUPABASE_URL`
+  - `SUPABASE_ANON_KEY`
+- A serverless function is included to provide these at runtime:
+  - File: `/api/get-supabase.js`
+  - Returns `{ url, anonKey }` from env, GET only
+- `admin.html` fetches `/api/get-supabase` on load and initializes the Supabase client with the returned values.
+
 This guide will help you set up Supabase as the backend for the notice board functionality.
 
 ## 1. Create a Supabase Project
