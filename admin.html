@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Backend - Assam Horizon Sr. Secondary School</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">Assam Horizon <span class="brand-accent">Sr. Secondary School</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="academics.html">Academics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admissions.html">Admissions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faculty.html">Faculty</a></li>
+                    <li class="nav-item"><a class="nav-link" href="gallery.html">Gallery</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Portals</a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <!-- <li><a class="dropdown-item" href="portal.html">Academics Portal</a></li> -->
+                            <!-- <li><a class="dropdown-item" href="parent-portal.html">Parent Portal</a></li> -->
+                            <li><a class="dropdown-item active" href="admin.html">Admin Backend</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="notice.html">Notice Board</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        <div class="container py-5">
+            <!-- Login Section -->
+            <div id="loginSection" class="row justify-content-center">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h4 class="mb-0">
+                                <i class="fas fa-lock me-2"></i>Admin Login
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="adminEmail" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="adminEmail" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="adminPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="adminPassword" name="password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </button>
+                            </form>
+                            <div id="loginError" class="alert alert-danger mt-3" style="display: none;">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span id="loginErrorText"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard Section -->
+            <div id="adminDashboard" class="d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>
+                                <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                            </h2>
+                            <button class="btn btn-outline-danger" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Tab Navigation -->
+                    <div class="col-12">
+                        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="notices-tab" data-bs-toggle="tab" data-bs-target="#notices" type="button" role="tab">
+                                    <i class="fas fa-bullhorn me-2"></i>Notices
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery" type="button" role="tab">
+                                    <i class="fas fa-images me-2"></i>Gallery
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="faculty-tab" data-bs-toggle="tab" data-bs-target="#faculty" type="button" role="tab">
+                                    <i class="fas fa-chalkboard-teacher me-2"></i>Faculty
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="adminTabContent">
+                        <!-- Notices Tab -->
+                        <div class="tab-pane fade show active" id="notices" role="tabpanel">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="card shadow">
+                                        <div class="card-header bg-primary text-white">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-bullhorn me-2"></i>Manage Notices
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="noticeForm">
+                                                <input type="hidden" id="noticeId" name="id">
+                                                <div class="mb-3">
+                                                    <label for="noticeTitle" class="form-label">Notice Title *</label>
+                                                    <input type="text" class="form-control" id="noticeTitle" name="title" placeholder="Enter notice title" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="noticeBody" class="form-label">Notice Content *</label>
+                                                    <textarea class="form-control" id="noticeBody" name="body" rows="5" placeholder="Enter notice content" required></textarea>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" class="btn btn-primary" id="noticeSubmitBtn">
+                                                        <i class="fas fa-paper-plane me-2"></i>Publish Notice
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary" id="noticeCancelBtn" style="display: none;" onclick="cancelNoticeEdit()">
+                                                        <i class="fas fa-times me-2"></i>Cancel
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Published Notices -->
+                                    <div class="card shadow mt-4">
+                                        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #000000;">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-list me-2"></i>Published Notices
+                                            </h5>
+                                            <button class="btn btn-light btn-sm" onclick="loadNotices()">
+                                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="publishedNotices">
+                                                <!-- Notices will be loaded here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Tab -->
+                        <div class="tab-pane fade" id="gallery" role="tabpanel">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="card shadow">
+                                        <div class="card-header bg-info text-white">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-images me-2"></i>Manage Gallery
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="galleryForm" enctype="multipart/form-data">
+                                                <input type="hidden" id="galleryId" name="id">
+                                                <div class="mb-3">
+                                                    <label for="galleryTitle" class="form-label">Image Title *</label>
+                                                    <input type="text" class="form-control" id="galleryTitle" name="title" placeholder="Enter image title" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="galleryDescription" class="form-label">Description</label>
+                                                    <textarea class="form-control" id="galleryDescription" name="description" rows="3" placeholder="Enter image description"></textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="galleryCategory" class="form-label">Category *</label>
+                                                    <select class="form-select" id="galleryCategory" name="category" required>
+                                                        <option value="">Select Category</option>
+                                                        <option value="campus">Campus</option>
+                                                        <option value="facilities">Facilities</option>
+                                                        <option value="activities">Activities</option>
+                                                        <option value="events">Events</option>
+                                                        <option value="general">General</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="galleryImage" class="form-label">Image File *</label>
+                                                    <input type="file" class="form-control" id="galleryImage" name="image" accept="image/*" required>
+                                                    <div class="form-text">Supported formats: JPG, PNG, GIF. Max size: 5MB</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="galleryOrder" class="form-label">Display Order</label>
+                                                    <input type="number" class="form-control" id="galleryOrder" name="display_order" placeholder="0" min="0">
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" class="btn btn-info" id="gallerySubmitBtn">
+                                                        <i class="fas fa-upload me-2"></i>Upload Image
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary" id="galleryCancelBtn" style="display: none;" onclick="cancelGalleryEdit()">
+                                                        <i class="fas fa-times me-2"></i>Cancel
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gallery Images -->
+                                    <div class="card shadow mt-4">
+                                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-images me-2"></i>Gallery Images
+                                            </h5>
+                                            <button class="btn btn-light btn-sm" onclick="loadGallery()">
+                                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="galleryImages" class="row">
+                                                <!-- Gallery images will be loaded here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Faculty Tab -->
+                        <div class="tab-pane fade" id="faculty" role="tabpanel">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="card shadow">
+                                        <div class="card-header bg-warning text-dark">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-chalkboard-teacher me-2"></i>Manage Faculty
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="facultyForm" enctype="multipart/form-data">
+                                                <input type="hidden" id="facultyId" name="id">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="facultyName" class="form-label">Name *</label>
+                                                            <input type="text" class="form-control" id="facultyName" name="name" placeholder="Full name" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="facultyRole" class="form-label">Role *</label>
+                                                            <input type="text" class="form-control" id="facultyRole" name="role" placeholder="Principal, Teacher, etc." required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="facultySubject" class="form-label">Subject *</label>
+                                                            <input type="text" class="form-control" id="facultySubject" name="subject" placeholder="Mathematics, English, etc." required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="facultyQualification" class="form-label">Qualification</label>
+                                                            <input type="text" class="form-control" id="facultyQualification" name="qualification" placeholder="M.A., Ph.D., etc.">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="facultyExperience" class="form-label">Experience</label>
+                                                            <input type="text" class="form-control" id="facultyExperience" name="experience" placeholder="5 years, 10+ years, etc.">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="facultyEmail" class="form-label">Email</label>
+                                                            <input type="email" class="form-control" id="facultyEmail" name="email" placeholder="teacher@school.edu">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="facultyPhone" class="form-label">Phone</label>
+                                                    <input type="tel" class="form-control" id="facultyPhone" name="phone" placeholder="+91 98765 43210">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="facultyBio" class="form-label">Biography</label>
+                                                    <textarea class="form-control" id="facultyBio" name="bio" rows="3" placeholder="Brief biography about the faculty member"></textarea>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="facultyPhoto" class="form-label">Photo</label>
+                                                    <input type="file" class="form-control" id="facultyPhoto" name="photo" accept="image/*">
+                                                    <div class="form-text">Supported formats: JPG, PNG. Max size: 2MB</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="facultyOrder" class="form-label">Display Order</label>
+                                                    <input type="number" class="form-control" id="facultyOrder" name="display_order" placeholder="0" min="0">
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" class="btn btn-warning" id="facultySubmitBtn">
+                                                        <i class="fas fa-save me-2"></i>Save Faculty
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary" id="facultyCancelBtn" style="display: none;" onclick="cancelFacultyEdit()">
+                                                        <i class="fas fa-times me-2"></i>Cancel
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Faculty Members -->
+                                    <div class="card shadow mt-4">
+                                        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-chalkboard-teacher me-2"></i>Faculty Members
+                                            </h5>
+                                            <button class="btn btn-light btn-sm" onclick="loadFaculty()">
+                                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="facultyMembers">
+                                                <!-- Faculty members will be loaded here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                    <!-- Admin Info Sidebar -->
+                    <div class="col-lg-4">
+                        <div class="card shadow">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user-shield me-2"></i>Admin Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Logged in as:</strong></p>
+                                <p id="adminInfo" class="text-muted">-</p>
+                                <hr>
+                                <p><strong>Quick Actions:</strong></p>
+                                <div class="d-grid gap-2">
+                                    <a href="notice.html" class="btn btn-outline-primary btn-sm" target="_blank">
+                                        <i class="fas fa-external-link-alt me-2"></i>View Public Notice Board
+                                    </a>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshNotices()">
+                                        <i class="fas fa-sync-alt me-2"></i>Refresh Notices
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statistics Card -->
+                        <div class="card shadow mt-3">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>Statistics
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-12">
+                                        <h3 id="totalNotices" class="text-primary">0</h3>
+                                        <p class="text-muted mb-0">Total Notices</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer py-4 mt-auto">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div>© <span id="year"></span> Assam Horizon Sr. Secondary School</div>
+            <div class="d-flex gap-3">
+                <a href="notice.html">Notice Board</a>
+                <a href="contact.html">Contact</a>
+                <a href="admissions.html">Admissions</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notice Published Modal -->
+    <div class="modal fade" id="noticePublishedModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white" style="background-color: #000000;">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check-circle me-2"></i>Notice Published
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ✅ Your notice has been successfully published and is now visible on the public notice board!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // Replace with your Supabase URL
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your Supabase anon key
+        
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Global variables
+        let currentAdmin = null;
+
+        // Upload helper: uploads a file to Supabase Storage and returns a public URL
+        async function uploadImageToBucket(file, bucketName) {
+            if (!file) return '';
+            const fileExtension = file.name.split('.').pop();
+            const filePath = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExtension}`;
+
+            const { error: uploadError } = await supabase
+                .storage
+                .from(bucketName)
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+            const { data } = supabase
+                .storage
+                .from(bucketName)
+                .getPublicUrl(filePath);
+
+            return data.publicUrl;
+        }
+
+        // Set current year in footer
+        document.getElementById("year").textContent = new Date().getFullYear();
+
+        // Check if admin is already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedAdmin = localStorage.getItem('adminUser');
+            if (savedAdmin) {
+                currentAdmin = JSON.parse(savedAdmin);
+                showAdminDashboard();
+            }
+        });
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            try {
+                // Check admin credentials against Supabase
+                const { data: admins, error } = await supabase
+                    .from('admins')
+                    .select('*')
+                    .eq('email', email)
+                    .eq('password', password)
+                    .single();
+
+                if (error || !admins) {
+                    showLoginError('Invalid email or password');
+                    return;
+                }
+
+                // Login successful
+                currentAdmin = admins;
+                localStorage.setItem('adminUser', JSON.stringify(currentAdmin));
+                showAdminDashboard();
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError('Login failed. Please try again.');
+            }
+        });
+
+        // Handle notice form submission
+        document.getElementById('noticeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const noticeId = formData.get('id');
+            const title = formData.get('title');
+            const body = formData.get('body');
+            
+            try {
+                if (noticeId) {
+                    // Update existing notice
+                    const { data, error } = await supabase
+                        .from('notices')
+                        .update({
+                            title: title,
+                            body: body,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', noticeId);
+
+                    if (error) throw error;
+                    showSuccessModal('Notice Updated', 'Your notice has been successfully updated!');
+                } else {
+                    // Insert new notice
+                    const { data, error } = await supabase
+                        .from('notices')
+                        .insert([
+                            {
+                                title: title,
+                                body: body,
+                                created_at: new Date().toISOString()
+                            }
+                        ]);
+
+                    if (error) throw error;
+                    showNoticePublishedModal();
+                }
+
+                // Reset form and reload notices
+                document.getElementById('noticeForm').reset();
+                document.getElementById('noticeId').value = '';
+                loadNotices();
+                
+            } catch (error) {
+                console.error('Error saving notice:', error);
+                showErrorAlert('Error saving notice. Please try again.');
+            }
+        });
+
+        // Handle gallery form submission
+        document.getElementById('galleryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const galleryId = formData.get('id');
+            const imageFile = formData.get('image');
+            
+            try {
+                let imageUrl = '';
+                
+                // Upload to Supabase Storage and get a public URL
+                if (imageFile && imageFile.size > 0) {
+                    imageUrl = await uploadImageToBucket(imageFile, 'gallery-images');
+                }
+                
+                const galleryData = {
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    category: formData.get('category'),
+                    display_order: parseInt(formData.get('display_order')) || 0,
+                    image_url: imageUrl,
+                    updated_at: new Date().toISOString()
+                };
+
+                if (galleryId) {
+                    // Update existing gallery item
+                    const { data, error } = await supabase
+                        .from('gallery')
+                        .update(galleryData)
+                        .eq('id', galleryId);
+
+                    if (error) throw error;
+                    showSuccessModal('Image Updated', 'Gallery image has been successfully updated!');
+                } else {
+                    // Insert new gallery item
+                    galleryData.created_at = new Date().toISOString();
+                    const { data, error } = await supabase
+                        .from('gallery')
+                        .insert([galleryData]);
+
+                    if (error) throw error;
+                    showSuccessModal('Image Uploaded', 'Gallery image has been successfully uploaded!');
+                }
+
+                // Reset form and reload gallery
+                document.getElementById('galleryForm').reset();
+                document.getElementById('galleryId').value = '';
+                loadGallery();
+                
+            } catch (error) {
+                console.error('Error saving gallery item:', error);
+                showErrorAlert('Error saving gallery item. Please try again.');
+            }
+        });
+
+        // Handle faculty form submission
+        document.getElementById('facultyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const facultyId = formData.get('id');
+            const photoFile = formData.get('photo');
+            
+            try {
+                let photoUrl = '';
+                
+                // Upload to Supabase Storage and get a public URL
+                if (photoFile && photoFile.size > 0) {
+                    photoUrl = await uploadImageToBucket(photoFile, 'faculty-photos');
+                }
+                
+                const facultyData = {
+                    name: formData.get('name'),
+                    role: formData.get('role'),
+                    subject: formData.get('subject'),
+                    qualification: formData.get('qualification'),
+                    experience: formData.get('experience'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    bio: formData.get('bio'),
+                    display_order: parseInt(formData.get('display_order')) || 0,
+                    photo_url: photoUrl,
+                    updated_at: new Date().toISOString()
+                };
+
+                if (facultyId) {
+                    // Update existing faculty member
+                    const { data, error } = await supabase
+                        .from('faculty')
+                        .update(facultyData)
+                        .eq('id', facultyId);
+
+                    if (error) throw error;
+                    showSuccessModal('Faculty Updated', 'Faculty member has been successfully updated!');
+                } else {
+                    // Insert new faculty member
+                    facultyData.created_at = new Date().toISOString();
+                    const { data, error } = await supabase
+                        .from('faculty')
+                        .insert([facultyData]);
+
+                    if (error) throw error;
+                    showSuccessModal('Faculty Added', 'Faculty member has been successfully added!');
+                }
+
+                // Reset form and reload faculty
+                document.getElementById('facultyForm').reset();
+                document.getElementById('facultyId').value = '';
+                loadFaculty();
+                
+            } catch (error) {
+                console.error('Error saving faculty member:', error);
+                showErrorAlert('Error saving faculty member. Please try again.');
+            }
+        });
+
+        // Function to show admin dashboard
+        function showAdminDashboard() {
+            document.getElementById('loginSection').classList.add('d-none');
+            document.getElementById('adminDashboard').classList.remove('d-none');
+            
+            // Update admin info
+            document.getElementById('adminInfo').textContent = currentAdmin.email;
+            
+            // Load all data
+            loadNotices();
+            loadGallery();
+            loadFaculty();
+        }
+
+        // Function to show login error
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            const errorText = document.getElementById('loginErrorText');
+            errorText.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Hide error after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Function to load published notices
+        async function loadNotices() {
+            try {
+                const { data: notices, error } = await supabase
+                    .from('notices')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                const container = document.getElementById('publishedNotices');
+                const totalNotices = document.getElementById('totalNotices');
+                
+                totalNotices.textContent = notices ? notices.length : 0;
+
+                if (!notices || notices.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No notices published yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = notices.map(notice => {
+                    const createdDate = new Date(notice.created_at).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    return `
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">${escapeHtml(notice.title)}</h6>
+                                    <p class="text-muted small mb-1">${escapeHtml(notice.body).substring(0, 100)}${notice.body.length > 100 ? '...' : ''}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>${createdDate}
+                                    </small>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="editNotice('${notice.id}')" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="deleteNotice('${notice.id}')" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading notices:', error);
+                document.getElementById('publishedNotices').innerHTML = '<p class="text-danger">Error loading notices.</p>';
+            }
+        }
+
+        // Function to load gallery images
+        async function loadGallery() {
+            try {
+                const { data: gallery, error } = await supabase
+                    .from('gallery')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (error) {
+                    throw error;
+                }
+
+                const container = document.getElementById('galleryImages');
+
+                if (!gallery || gallery.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No gallery images yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = gallery.map(item => {
+                    const createdDate = new Date(item.created_at).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+
+                    return `
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card">
+                                <img src="${item.image_url}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="${escapeHtml(item.title)}">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">${escapeHtml(item.title)}</h6>
+                                    <p class="card-text small text-muted mb-1">${escapeHtml(item.description || '').substring(0, 50)}${item.description && item.description.length > 50 ? '...' : ''}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">${createdDate}</small>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="editGallery('${item.id}')" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteGallery('${item.id}')" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                document.getElementById('galleryImages').innerHTML = '<p class="text-danger">Error loading gallery images.</p>';
+            }
+        }
+
+        // Function to load faculty members
+        async function loadFaculty() {
+            try {
+                const { data: faculty, error } = await supabase
+                    .from('faculty')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (error) {
+                    throw error;
+                }
+
+                const container = document.getElementById('facultyMembers');
+
+                if (!faculty || faculty.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No faculty members yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = faculty.map(member => {
+                    const createdDate = new Date(member.created_at).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+
+                    return `
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <img src="${member.photo_url || 'assets/images/placeholder-avatar.jpg'}" 
+                                         class="rounded-circle" 
+                                         style="width: 60px; height: 60px; object-fit: cover;" 
+                                         alt="${escapeHtml(member.name)}">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">${escapeHtml(member.name)}</h6>
+                                    <p class="text-muted small mb-1">
+                                        <strong>${escapeHtml(member.role)}</strong> - ${escapeHtml(member.subject)}
+                                    </p>
+                                    <p class="text-muted small mb-1">${escapeHtml(member.qualification || '')} ${escapeHtml(member.experience || '')}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>${createdDate}
+                                    </small>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="editFaculty('${member.id}')" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="deleteFaculty('${member.id}')" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading faculty:', error);
+                document.getElementById('facultyMembers').innerHTML = '<p class="text-danger">Error loading faculty members.</p>';
+            }
+        }
+
+        // Function to show notice published modal
+        function showNoticePublishedModal() {
+            const modal = new bootstrap.Modal(document.getElementById('noticePublishedModal'));
+            modal.show();
+        }
+
+        // Function to refresh notices
+        function refreshNotices() {
+            loadPublishedNotices();
+        }
+
+        // Function to logout
+        function logout() {
+            currentAdmin = null;
+            localStorage.removeItem('adminUser');
+            document.getElementById('loginSection').classList.remove('d-none');
+            document.getElementById('adminDashboard').classList.add('d-none');
+            document.getElementById('loginForm').reset();
+        }
+
+        // Function to escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // CRUD Operations for Notices
+        async function editNotice(id) {
+            try {
+                const { data: notice, error } = await supabase
+                    .from('notices')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                // Populate form
+                document.getElementById('noticeId').value = notice.id;
+                document.getElementById('noticeTitle').value = notice.title;
+                document.getElementById('noticeBody').value = notice.body;
+                
+                // Update button text and show cancel button
+                document.getElementById('noticeSubmitBtn').innerHTML = '<i class="fas fa-save me-2"></i>Update Notice';
+                document.getElementById('noticeCancelBtn').style.display = 'inline-block';
+                
+                // Scroll to form
+                document.getElementById('noticeForm').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error loading notice:', error);
+                showErrorAlert('Error loading notice for editing.');
+            }
+        }
+
+        async function deleteNotice(id) {
+            if (!confirm('Are you sure you want to delete this notice?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('notices')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                
+                showSuccessModal('Notice Deleted', 'Notice has been successfully deleted.');
+                loadNotices();
+                
+            } catch (error) {
+                console.error('Error deleting notice:', error);
+                showErrorAlert('Error deleting notice.');
+            }
+        }
+
+        function cancelNoticeEdit() {
+            document.getElementById('noticeForm').reset();
+            document.getElementById('noticeId').value = '';
+            document.getElementById('noticeSubmitBtn').innerHTML = '<i class="fas fa-paper-plane me-2"></i>Publish Notice';
+            document.getElementById('noticeCancelBtn').style.display = 'none';
+        }
+
+        // CRUD Operations for Gallery
+        async function editGallery(id) {
+            try {
+                const { data: item, error } = await supabase
+                    .from('gallery')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                // Populate form
+                document.getElementById('galleryId').value = item.id;
+                document.getElementById('galleryTitle').value = item.title;
+                document.getElementById('galleryDescription').value = item.description || '';
+                document.getElementById('galleryCategory').value = item.category;
+                document.getElementById('galleryOrder').value = item.display_order || 0;
+                
+                // Update button text and show cancel button
+                document.getElementById('gallerySubmitBtn').innerHTML = '<i class="fas fa-save me-2"></i>Update Image';
+                document.getElementById('galleryCancelBtn').style.display = 'inline-block';
+                
+                // Make image field optional for editing
+                document.getElementById('galleryImage').required = false;
+                
+                // Scroll to form
+                document.getElementById('galleryForm').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error loading gallery item:', error);
+                showErrorAlert('Error loading gallery item for editing.');
+            }
+        }
+
+        async function deleteGallery(id) {
+            if (!confirm('Are you sure you want to delete this gallery image?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('gallery')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                
+                showSuccessModal('Image Deleted', 'Gallery image has been successfully deleted.');
+                loadGallery();
+                
+            } catch (error) {
+                console.error('Error deleting gallery item:', error);
+                showErrorAlert('Error deleting gallery image.');
+            }
+        }
+
+        function cancelGalleryEdit() {
+            document.getElementById('galleryForm').reset();
+            document.getElementById('galleryId').value = '';
+            document.getElementById('gallerySubmitBtn').innerHTML = '<i class="fas fa-upload me-2"></i>Upload Image';
+            document.getElementById('galleryCancelBtn').style.display = 'none';
+            document.getElementById('galleryImage').required = true;
+        }
+
+        // CRUD Operations for Faculty
+        async function editFaculty(id) {
+            try {
+                const { data: member, error } = await supabase
+                    .from('faculty')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                // Populate form
+                document.getElementById('facultyId').value = member.id;
+                document.getElementById('facultyName').value = member.name;
+                document.getElementById('facultyRole').value = member.role;
+                document.getElementById('facultySubject').value = member.subject;
+                document.getElementById('facultyQualification').value = member.qualification || '';
+                document.getElementById('facultyExperience').value = member.experience || '';
+                document.getElementById('facultyEmail').value = member.email || '';
+                document.getElementById('facultyPhone').value = member.phone || '';
+                document.getElementById('facultyBio').value = member.bio || '';
+                document.getElementById('facultyOrder').value = member.display_order || 0;
+                
+                // Update button text and show cancel button
+                document.getElementById('facultySubmitBtn').innerHTML = '<i class="fas fa-save me-2"></i>Update Faculty';
+                document.getElementById('facultyCancelBtn').style.display = 'inline-block';
+                
+                // Make photo field optional for editing
+                document.getElementById('facultyPhoto').required = false;
+                
+                // Scroll to form
+                document.getElementById('facultyForm').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error loading faculty member:', error);
+                showErrorAlert('Error loading faculty member for editing.');
+            }
+        }
+
+        async function deleteFaculty(id) {
+            if (!confirm('Are you sure you want to delete this faculty member?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('faculty')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                
+                showSuccessModal('Faculty Deleted', 'Faculty member has been successfully deleted.');
+                loadFaculty();
+                
+            } catch (error) {
+                console.error('Error deleting faculty member:', error);
+                showErrorAlert('Error deleting faculty member.');
+            }
+        }
+
+        function cancelFacultyEdit() {
+            document.getElementById('facultyForm').reset();
+            document.getElementById('facultyId').value = '';
+            document.getElementById('facultySubmitBtn').innerHTML = '<i class="fas fa-save me-2"></i>Save Faculty';
+            document.getElementById('facultyCancelBtn').style.display = 'none';
+            document.getElementById('facultyPhoto').required = false;
+        }
+
+        // Utility functions
+        function showSuccessModal(title, message) {
+            const modal = new bootstrap.Modal(document.getElementById('noticePublishedModal'));
+            const modalTitle = document.querySelector('#noticePublishedModal .modal-title');
+            const modalBody = document.querySelector('#noticePublishedModal .modal-body');
+            
+            modalTitle.innerHTML = `<i class="fas fa-check-circle me-2"></i>${title}`;
+            modalBody.innerHTML = `✅ ${message}`;
+            modal.show();
+        }
+
+        function showErrorAlert(message) {
+            alert(`❌ ${message}`);
+        }
+    </script>
+</body>
+</html>
