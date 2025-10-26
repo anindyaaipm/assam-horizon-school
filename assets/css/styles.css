@@ -2,17 +2,19 @@
 :root {
   --primary: #0d6efd;
   --secondary: #6c757d;
-  --accent: #20c997;
+  --accent: #000000;
   --dark: #0b132b;
   --light: #f8f9fa;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
 
 html, body {
   height: 100%;
 }
 
 body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   background-color: var(--light);
   color: #222;
 }
@@ -24,7 +26,7 @@ body {
 
 /* Hero */
 .hero {
-  background: linear-gradient(135deg, rgba(13,110,253,0.1), rgba(32,201,151,0.1)), url('../images/school-building_1.jpg') center/cover no-repeat;
+  background: linear-gradient(135deg, rgba(13,110,253,0.1), rgba(0,0,0,0.1)), url('../images/school-building_1.jpg') center/cover no-repeat;
   min-height: 60vh;
   display: flex;
   align-items: center;
