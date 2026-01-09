@@ -87,29 +87,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabaseClient.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        // Initialize Supabase (only if not already declared)
-        if (typeof supabase === 'undefined') {
-            var supabase = null;
-        }
-
-        async function initSupabase() {
-            try {
-                const response = await fetch('/api/get-supabase');
-                if (!response.ok) throw new Error('Failed to fetch Supabase credentials');
-                const { url, anonKey } = await response.json();
-                supabase = window.supabase.createClient(url, anonKey);
-            } catch (err) {
-                console.warn('Could not fetch Supabase credentials from /api/get-supabase. Using fallback hardcoded values. This is expected in local static server environments.');
-                // Fallback for local development
-                const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-                const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        }
+        // Get Supabase client from shared module
+        let supabase = window.getSupabaseClient();
 
         async function loadSyllabi() {
+            // Ensure we have the client
+            if (!supabase) {
+                supabase = window.getSupabaseClient();
+            }
+            
             if (!supabase) {
                 showError('Supabase not initialized');
                 return;
@@ -222,8 +211,29 @@
             document.getElementById("year").textContent = new Date().getFullYear();
             
             showLoading();
-            await initSupabase();
-            await loadSyllabi();
+            
+            // Wait for Supabase to be ready
+            function waitAndLoad() {
+                supabase = window.getSupabaseClient();
+                if (supabase) {
+                    loadSyllabi();
+                } else {
+                    window.addEventListener('supabaseReady', function() {
+                        supabase = window.getSupabaseClient();
+                        loadSyllabi();
+                    }, { once: true });
+                    setTimeout(function() {
+                        supabase = window.getSupabaseClient();
+                        if (supabase) {
+                            loadSyllabi();
+                        } else {
+                            showError('Failed to initialize database connection');
+                        }
+                    }, 2000);
+                }
+            }
+            
+            waitAndLoad();
         });
     </script>
   </body>

@@ -94,44 +94,50 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabaseClient.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-      // Supabase configuration
-      const SUPABASE_URL = 'https://mrthnvwokprolhaoimpg.supabase.co'; // Replace with your Supabase URL
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ydGhudndva3Byb2xoYW9pbXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNzExODYsImV4cCI6MjA3NDY0NzE4Nn0.5nncUpTZXKEMC65Bdcr5JRmzulUZRHWrRhPbVLV8Tzo'; // Replace with your Supabase anon key
-      
-      // Initialize Supabase client (only if not already declared)
-      if (typeof supabase === 'undefined') {
-        if (typeof window.supabase !== 'undefined') {
-          var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } else {
-          console.error('Supabase library not loaded yet');
-        }
-      }
+      // Get Supabase client from shared module
+      const supabase = window.getSupabaseClient();
 
       // Set current year in footer
       document.getElementById("year").textContent = new Date().getFullYear();
 
       // Load faculty members on page load
-      document.addEventListener('DOMContentLoaded', function() {
-        // Ensure Supabase is initialized before loading
-        if (typeof supabase === 'undefined' && typeof window.supabase !== 'undefined') {
-          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-        
-        if (typeof supabase !== 'undefined' && supabase !== null) {
+      function waitForSupabaseAndLoad() {
+        const client = window.getSupabaseClient();
+        if (client) {
           loadFacultyMembers();
         } else {
-          console.error('Supabase client not available');
-          const loadingDiv = document.getElementById('facultyLoading');
-          if (loadingDiv) {
-            loadingDiv.innerHTML = '<div class="alert alert-danger">Error: Failed to initialize database connection. Please refresh the page.</div>';
-          }
+          // Wait for Supabase to be ready
+          window.addEventListener('supabaseReady', function() {
+            loadFacultyMembers();
+          }, { once: true });
+          // Fallback timeout
+          setTimeout(function() {
+            const client = window.getSupabaseClient();
+            if (client) {
+              loadFacultyMembers();
+            } else {
+              const loadingDiv = document.getElementById('facultyLoading');
+              if (loadingDiv) {
+                loadingDiv.innerHTML = '<div class="alert alert-danger">Error: Failed to initialize database connection. Please refresh the page.</div>';
+              }
+            }
+          }, 2000);
         }
-      });
+      }
+
+      document.addEventListener('DOMContentLoaded', waitForSupabaseAndLoad);
 
       // Function to load faculty members from Supabase
       async function loadFacultyMembers() {
+        const supabase = window.getSupabaseClient();
+        if (!supabase) {
+          console.error('Supabase client not available');
+          return;
+        }
+
         const loadingDiv = document.getElementById('facultyLoading');
         const noFacultyDiv = document.getElementById('noFaculty');
         const facultyGrid = document.getElementById('facultyGrid');

@@ -538,44 +538,60 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabaseClient.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        // Fetch Supabase credentials at runtime from serverless function
-        // Only declare if not already declared (prevents duplicate declaration errors)
-        if (typeof supabase === 'undefined') {
-            var supabase = null;
-        }
-        if (typeof SUPABASE_URL === 'undefined') {
-            var SUPABASE_URL = '';
-        }
-        if (typeof SUPABASE_ANON_KEY === 'undefined') {
-            var SUPABASE_ANON_KEY = '';
-        }
+        // Admin page can use shared client or override with API endpoint credentials
+        let supabase = window.getSupabaseClient();
+        let SUPABASE_URL = '';
+        let SUPABASE_ANON_KEY = '';
 
         async function initSupabase() {
             try {
                 const response = await fetch('/api/get-supabase');
                 if (!response.ok) {
-                    // If API endpoint fails, try using hardcoded values as fallback
-                    console.warn('API endpoint failed, using fallback credentials');
-                    SUPABASE_URL = 'https://mrthnvwokprolhaoimpg.supabase.co';
-                    SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ydGhudndva3Byb2xoYW9pbXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNzExODYsImV4cCI6MjA3NDY0NzE4Nn0.5nncUpTZXKEMC65Bdcr5JRmzulUZRHWrRhPbVLV8Tzo';
+                    // If API endpoint fails, use shared client as fallback
+                    console.warn('API endpoint failed, using shared Supabase client');
+                    supabase = window.getSupabaseClient();
+                    if (!supabase) {
+                        // Wait for shared client to initialize
+                        await new Promise((resolve) => {
+                            if (window.getSupabaseClient()) {
+                                resolve();
+                            } else {
+                                window.addEventListener('supabaseReady', resolve, { once: true });
+                                setTimeout(resolve, 2000);
+                            }
+                        });
+                        supabase = window.getSupabaseClient();
+                    }
                 } else {
                     const { url, anonKey } = await response.json();
                     SUPABASE_URL = url;
                     SUPABASE_ANON_KEY = anonKey;
+                    
+                    if (SUPABASE_URL && SUPABASE_ANON_KEY && typeof window.supabase !== 'undefined') {
+                        // Override with API credentials if available
+                        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                        console.log('Supabase initialized with API credentials');
+                    } else {
+                        // Fallback to shared client
+                        supabase = window.getSupabaseClient();
+                    }
                 }
                 
-                if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-                    throw new Error('Supabase credentials are missing');
+                if (!supabase) {
+                    throw new Error('Supabase client could not be initialized');
                 }
                 
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 console.log('Supabase initialized successfully');
             } catch (err) {
                 console.error('Supabase init error:', err);
-                // Don't show alert immediately, let the login form handle it
-                supabase = null;
+                // Try to use shared client as fallback
+                supabase = window.getSupabaseClient();
+                if (!supabase) {
+                    supabase = null;
+                }
             }
         }
 
