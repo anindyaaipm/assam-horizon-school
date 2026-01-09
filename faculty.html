@@ -97,9 +97,6 @@
     <script src="assets/js/supabaseClient.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-      // Get Supabase client from shared module
-      const supabase = window.getSupabaseClient();
-
       // Set current year in footer
       document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -110,11 +107,7 @@
           loadFacultyMembers();
         } else {
           // Wait for Supabase to be ready
-          window.addEventListener('supabaseReady', function() {
-            loadFacultyMembers();
-          }, { once: true });
-          // Fallback timeout
-          setTimeout(function() {
+          const timeout = setTimeout(function() {
             const client = window.getSupabaseClient();
             if (client) {
               loadFacultyMembers();
@@ -124,7 +117,12 @@
                 loadingDiv.innerHTML = '<div class="alert alert-danger">Error: Failed to initialize database connection. Please refresh the page.</div>';
               }
             }
-          }, 2000);
+          }, 3000);
+
+          window.addEventListener('supabaseReady', function() {
+            clearTimeout(timeout);
+            loadFacultyMembers();
+          }, { once: true });
         }
       }
 

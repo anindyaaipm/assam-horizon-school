@@ -90,14 +90,11 @@
     <script src="assets/js/supabaseClient.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        // Get Supabase client from shared module
-        let supabase = window.getSupabaseClient();
+        // Supabase client will be retrieved when needed
 
         async function loadSyllabi() {
-            // Ensure we have the client
-            if (!supabase) {
-                supabase = window.getSupabaseClient();
-            }
+            // Get client when needed
+            const supabase = window.getSupabaseClient();
             
             if (!supabase) {
                 showError('Supabase not initialized');
@@ -214,22 +211,23 @@
             
             // Wait for Supabase to be ready
             function waitAndLoad() {
-                supabase = window.getSupabaseClient();
-                if (supabase) {
+                const client = window.getSupabaseClient();
+                if (client) {
                     loadSyllabi();
                 } else {
-                    window.addEventListener('supabaseReady', function() {
-                        supabase = window.getSupabaseClient();
-                        loadSyllabi();
-                    }, { once: true });
-                    setTimeout(function() {
-                        supabase = window.getSupabaseClient();
-                        if (supabase) {
+                    const timeout = setTimeout(function() {
+                        const client = window.getSupabaseClient();
+                        if (client) {
                             loadSyllabi();
                         } else {
                             showError('Failed to initialize database connection');
                         }
-                    }, 2000);
+                    }, 3000);
+
+                    window.addEventListener('supabaseReady', function() {
+                        clearTimeout(timeout);
+                        loadSyllabi();
+                    }, { once: true });
                 }
             }
             

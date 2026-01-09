@@ -542,7 +542,7 @@
     <script src="assets/js/main.js"></script>
     <script>
         // Admin page can use shared client or override with API endpoint credentials
-        let supabase = window.getSupabaseClient();
+        let supabase = null;
         let SUPABASE_URL = '';
         let SUPABASE_ANON_KEY = '';
 
@@ -554,13 +554,17 @@
                     console.warn('API endpoint failed, using shared Supabase client');
                     supabase = window.getSupabaseClient();
                     if (!supabase) {
-                        // Wait for shared client to initialize
+                        // Wait for shared client to initialize (max 3 seconds)
                         await new Promise((resolve) => {
+                            const timeout = setTimeout(resolve, 3000);
                             if (window.getSupabaseClient()) {
+                                clearTimeout(timeout);
                                 resolve();
                             } else {
-                                window.addEventListener('supabaseReady', resolve, { once: true });
-                                setTimeout(resolve, 2000);
+                                window.addEventListener('supabaseReady', function() {
+                                    clearTimeout(timeout);
+                                    resolve();
+                                }, { once: true });
                             }
                         });
                         supabase = window.getSupabaseClient();
@@ -570,7 +574,7 @@
                     SUPABASE_URL = url;
                     SUPABASE_ANON_KEY = anonKey;
                     
-                    if (SUPABASE_URL && SUPABASE_ANON_KEY && typeof window.supabase !== 'undefined') {
+                    if (SUPABASE_URL && SUPABASE_ANON_KEY && typeof window.supabase !== 'undefined' && window.supabase && window.supabase.createClient) {
                         // Override with API credentials if available
                         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                         console.log('Supabase initialized with API credentials');
