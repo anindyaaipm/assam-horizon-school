@@ -541,9 +541,16 @@
     <script src="assets/js/main.js"></script>
     <script>
         // Fetch Supabase credentials at runtime from serverless function
-        let supabase = null;
-        let SUPABASE_URL = '';
-        let SUPABASE_ANON_KEY = '';
+        // Only declare if not already declared (prevents duplicate declaration errors)
+        if (typeof supabase === 'undefined') {
+            var supabase = null;
+        }
+        if (typeof SUPABASE_URL === 'undefined') {
+            var SUPABASE_URL = '';
+        }
+        if (typeof SUPABASE_ANON_KEY === 'undefined') {
+            var SUPABASE_ANON_KEY = '';
+        }
 
         async function initSupabase() {
             try {
