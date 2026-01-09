@@ -548,19 +548,74 @@
         async function initSupabase() {
             try {
                 const response = await fetch('/api/get-supabase');
-                if (!response.ok) throw new Error('Failed to fetch Supabase credentials');
-                const { url, anonKey } = await response.json();
-                SUPABASE_URL = url;
-                SUPABASE_ANON_KEY = anonKey;
+                if (!response.ok) {
+                    // If API endpoint fails, try using hardcoded values as fallback
+                    console.warn('API endpoint failed, using fallback credentials');
+                    SUPABASE_URL = 'https://mrthnvwokprolhaoimpg.supabase.co';
+                    SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ydGhudndva3Byb2xoYW9pbXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNzExODYsImV4cCI6MjA3NDY0NzE4Nn0.5nncUpTZXKEMC65Bdcr5JRmzulUZRHWrRhPbVLV8Tzo';
+                } else {
+                    const { url, anonKey } = await response.json();
+                    SUPABASE_URL = url;
+                    SUPABASE_ANON_KEY = anonKey;
+                }
+                
+                if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+                    throw new Error('Supabase credentials are missing');
+                }
+                
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase initialized successfully');
             } catch (err) {
                 console.error('Supabase init error:', err);
-                alert('Configuration error: Supabase credentials missing.');
+                // Don't show alert immediately, let the login form handle it
+                supabase = null;
             }
         }
 
         // Global variables
         let currentAdmin = null;
+
+        // Helper function to add timeout to Supabase queries
+        function withTimeout(promise, timeoutMs = 30000) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Request timeout - Supabase may be paused. Please wait and try again.')), timeoutMs)
+                )
+            ]);
+        }
+
+        // Helper function to retry Supabase queries (useful for paused projects)
+        async function retryQuery(queryFn, maxRetries = 2, delayMs = 2000) {
+            for (let i = 0; i <= maxRetries; i++) {
+                try {
+                    const result = await withTimeout(queryFn(), 30000);
+                    return result;
+                } catch (error) {
+                    if (i === maxRetries) {
+                        throw error;
+                    }
+                    console.log(`Query attempt ${i + 1} failed, retrying in ${delayMs}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delayMs));
+                }
+            }
+        }
+
+        // Warmup function to wake up paused Supabase project
+        async function warmupSupabase() {
+            if (!supabase) return false;
+            try {
+                // Simple query to wake up the database
+                await withTimeout(
+                    supabase.from('admins').select('id').limit(1),
+                    10000
+                );
+                return true;
+            } catch (error) {
+                console.warn('Supabase warmup failed:', error);
+                return false;
+            }
+        }
 
         // Upload helper: uploads a file to Supabase Storage and returns a public URL
         async function uploadImageToBucket(file, bucketName) {
@@ -593,11 +648,52 @@
 
         // Check if admin is already logged in
         document.addEventListener('DOMContentLoaded', async function() {
+            // Disable form until Supabase is ready
+            const loginForm = document.getElementById('loginForm');
+            const submitButton = loginForm.querySelector('button[type="submit"]');
+            const emailInput = document.getElementById('adminEmail');
+            const passwordInput = document.getElementById('adminPassword');
+            
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Initializing...';
+            emailInput.disabled = true;
+            passwordInput.disabled = true;
+            
             await initSupabase();
+            
+            // Enable form once Supabase is ready
+            if (supabase) {
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Warming up connection...';
+                
+                // Warmup Supabase connection in background (don't block UI)
+                warmupSupabase().then(success => {
+                    if (success) {
+                        console.log('Supabase connection warmed up successfully');
+                    } else {
+                        console.warn('Supabase warmup failed, but continuing...');
+                    }
+                });
+                
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Login';
+                emailInput.disabled = false;
+                passwordInput.disabled = false;
+            } else {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>System Error';
+                showLoginError('System initialization failed. Please refresh the page.');
+            }
+            
+            // Check if admin is already logged in
             const savedAdmin = localStorage.getItem('adminUser');
-            if (savedAdmin) {
-                currentAdmin = JSON.parse(savedAdmin);
-                showAdminDashboard();
+            if (savedAdmin && supabase) {
+                try {
+                    currentAdmin = JSON.parse(savedAdmin);
+                    showAdminDashboard();
+                } catch (e) {
+                    console.error('Error parsing saved admin:', e);
+                    localStorage.removeItem('adminUser');
+                }
             }
         });
 
@@ -605,31 +701,83 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('adminEmail').value;
+            const email = document.getElementById('adminEmail').value.trim();
             const password = document.getElementById('adminPassword').value;
             
+            // Check if Supabase is initialized
+            if (!supabase) {
+                showLoginError('System not ready. Please wait a moment and try again.');
+                console.error('Supabase client not initialized');
+                return;
+            }
+            
+            // Disable form and show loading state
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connecting...';
+            document.getElementById('loginError').style.display = 'none';
+            
             try {
-                // Check admin credentials against Supabase
-                const { data: admins, error } = await supabase
-                    .from('admins')
-                    .select('*')
-                    .eq('email', email)
-                    .eq('password', password)
-                    .single();
+                // Warmup Supabase if it's paused (first attempt)
+                console.log('Warming up Supabase connection...');
+                await warmupSupabase();
+                
+                // Update button text
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Authenticating...';
+                
+                // Check admin credentials with retry and timeout
+                const { data: admin, error } = await retryQuery(async () => {
+                    return await supabase
+                        .from('admins')
+                        .select('*')
+                        .eq('email', email)
+                        .eq('password', password)
+                        .maybeSingle();
+                }, 2, 2000);
 
-                if (error || !admins) {
+                // Check for errors (excluding "not found" which is expected for invalid credentials)
+                if (error) {
+                    // PGRST116 is the code for "not found" - this is expected for invalid credentials
+                    if (error.code === 'PGRST116' || error.message?.includes('No rows')) {
+                        showLoginError('Invalid email or password');
+                    } else {
+                        console.error('Supabase query error:', error);
+                        showLoginError('Login failed. ' + (error.message || 'Please try again.'));
+                    }
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    return;
+                }
+
+                // Check if admin was found
+                if (!admin) {
                     showLoginError('Invalid email or password');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
                     return;
                 }
 
                 // Login successful
-                currentAdmin = admins;
+                submitButton.innerHTML = '<i class="fas fa-check me-2"></i>Success!';
+                currentAdmin = admin;
                 localStorage.setItem('adminUser', JSON.stringify(currentAdmin));
+                
+                // Small delay to show success message
+                await new Promise(resolve => setTimeout(resolve, 500));
                 showAdminDashboard();
                 
             } catch (error) {
                 console.error('Login error:', error);
-                showLoginError('Login failed. Please try again.');
+                let errorMessage = 'Login failed. ';
+                if (error.message?.includes('timeout')) {
+                    errorMessage += 'Supabase is taking longer than usual (may be paused). Please wait a moment and try again.';
+                } else {
+                    errorMessage += error.message || 'Please try again.';
+                }
+                showLoginError(errorMessage);
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             }
         });
 
@@ -831,10 +979,12 @@
         // Function to load published notices
         async function loadNotices() {
             try {
-                const { data: notices, error } = await supabase
-                    .from('notices')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                const { data: notices, error } = await retryQuery(async () => {
+                    return await supabase
+                        .from('notices')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                }, 1, 2000);
 
                 if (error) {
                     throw error;
@@ -891,10 +1041,12 @@
         // Function to load gallery images
         async function loadGallery() {
             try {
-                const { data: gallery, error } = await supabase
-                    .from('gallery')
-                    .select('*')
-                    .order('display_order', { ascending: true });
+                const { data: gallery, error } = await retryQuery(async () => {
+                    return await supabase
+                        .from('gallery')
+                        .select('*')
+                        .order('display_order', { ascending: true });
+                }, 1, 2000);
 
                 if (error) {
                     throw error;
@@ -947,10 +1099,12 @@
         // Function to load faculty members
         async function loadFaculty() {
             try {
-                const { data: faculty, error } = await supabase
-                    .from('faculty')
-                    .select('*')
-                    .order('display_order', { ascending: true });
+                const { data: faculty, error } = await retryQuery(async () => {
+                    return await supabase
+                        .from('faculty')
+                        .select('*')
+                        .order('display_order', { ascending: true });
+                }, 1, 2000);
 
                 if (error) {
                     throw error;
