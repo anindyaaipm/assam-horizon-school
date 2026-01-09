@@ -542,9 +542,16 @@
     <script src="assets/js/main.js"></script>
     <script>
         // Admin page can use shared client or override with API endpoint credentials
-        let supabase = null;
-        let SUPABASE_URL = '';
-        let SUPABASE_ANON_KEY = '';
+        // Use var instead of let to avoid redeclaration errors on page reload
+        if (typeof supabase === 'undefined') {
+            var supabase = null;
+        }
+        if (typeof SUPABASE_URL === 'undefined') {
+            var SUPABASE_URL = '';
+        }
+        if (typeof SUPABASE_ANON_KEY === 'undefined') {
+            var SUPABASE_ANON_KEY = '';
+        }
 
         async function initSupabase() {
             try {
