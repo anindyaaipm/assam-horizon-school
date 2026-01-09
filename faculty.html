@@ -102,7 +102,11 @@
       
       // Initialize Supabase client (only if not already declared)
       if (typeof supabase === 'undefined') {
-        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        if (typeof window.supabase !== 'undefined') {
+          var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } else {
+          console.error('Supabase library not loaded yet');
+        }
       }
 
       // Set current year in footer
@@ -110,7 +114,20 @@
 
       // Load faculty members on page load
       document.addEventListener('DOMContentLoaded', function() {
-        loadFacultyMembers();
+        // Ensure Supabase is initialized before loading
+        if (typeof supabase === 'undefined' && typeof window.supabase !== 'undefined') {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        
+        if (typeof supabase !== 'undefined' && supabase !== null) {
+          loadFacultyMembers();
+        } else {
+          console.error('Supabase client not available');
+          const loadingDiv = document.getElementById('facultyLoading');
+          if (loadingDiv) {
+            loadingDiv.innerHTML = '<div class="alert alert-danger">Error: Failed to initialize database connection. Please refresh the page.</div>';
+          }
+        }
       });
 
       // Function to load faculty members from Supabase
