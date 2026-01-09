@@ -89,8 +89,10 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        // Initialize Supabase
-        let supabase = null;
+        // Initialize Supabase (only if not already declared)
+        if (typeof supabase === 'undefined') {
+            var supabase = null;
+        }
 
         async function initSupabase() {
             try {
