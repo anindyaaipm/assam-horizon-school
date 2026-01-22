@@ -113,6 +113,11 @@
                                     <i class="fas fa-book me-2"></i>Syllabus
                                 </button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="keydates-tab" data-bs-toggle="tab" data-bs-target="#keydates" type="button" role="tab">
+                                    <i class="fas fa-calendar-alt me-2"></i>Key Dates
+                                </button>
+                            </li>
                         </ul>
                     </div>
 
@@ -196,12 +201,21 @@
                                                     <label for="galleryCategory" class="form-label">Category *</label>
                                                     <select class="form-select" id="galleryCategory" name="category" required>
                                                         <option value="">Select Category</option>
-                                                        <option value="campus">Campus</option>
-                                                        <option value="facilities">Facilities</option>
-                                                        <option value="activities">Activities</option>
-                                                        <option value="events">Events</option>
-                                                        <option value="general">General</option>
+                                                        <option value="academics">Academics & Classroom Life</option>
+                                                        <option value="sports">Sports & Physical Activities</option>
+                                                        <option value="cultural">Cultural & Celebrations</option>
+                                                        <option value="trips">Trips & Outdoor Learning</option>
+                                                        <option value="achievements">Achievements & Special Moments</option>
                                                     </select>
+                                                    <div class="form-text">
+                                                        <small>
+                                                            <strong>Academics:</strong> Learning, projects, experiments<br>
+                                                            <strong>Sports:</strong> Sports day, matches, fitness<br>
+                                                            <strong>Cultural:</strong> Festivals, annual day, art events<br>
+                                                            <strong>Trips:</strong> Field trips, excursions, visits<br>
+                                                            <strong>Achievements:</strong> Awards, competitions, milestones
+                                                        </small>
+                                                    </div>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="galleryImage" class="form-label">Image File *</label>
@@ -454,6 +468,112 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Key Dates Tab -->
+                        <div class="tab-pane fade" id="keydates" role="tabpanel">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="card shadow">
+                                        <div class="card-header text-white" style="background-color: #6610f2;">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-calendar-alt me-2"></i>Manage Admission Key Dates
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                Set the important dates for the admission cycle. These will be displayed on the Admissions page.
+                                            </div>
+                                            <form id="keyDatesForm">
+                                                <input type="hidden" id="keyDatesId" name="id">
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="applicationsOpen" class="form-label">
+                                                                <i class="fas fa-calendar-check me-1"></i>Applications Open *
+                                                            </label>
+                                                            <input type="date" class="form-control" id="applicationsOpen" name="applications_open" required>
+                                                            <div class="form-text">Date when applications start being accepted</div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="decisions" class="form-label">
+                                                                <i class="fas fa-envelope me-1"></i>Decisions *
+                                                            </label>
+                                                            <input type="date" class="form-control" id="decisions" name="decisions" required>
+                                                            <div class="form-text">Date when admission decisions are communicated</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label">
+                                                        <i class="fas fa-calendar-week me-1"></i>Assessments Period *
+                                                    </label>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label for="assessmentsStart" class="form-label small text-muted">Start Date</label>
+                                                            <input type="date" class="form-control" id="assessmentsStart" name="assessments_start" required>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="assessmentsEnd" class="form-label small text-muted">End Date</label>
+                                                            <input type="date" class="form-control" id="assessmentsEnd" name="assessments_end" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-text">Date range for student assessments</div>
+                                                </div>
+
+                                                <div class="d-flex gap-2 mt-4">
+                                                    <button type="submit" class="btn text-white" style="background-color: #6610f2;" id="keyDatesSubmitBtn">
+                                                        <i class="fas fa-save me-2"></i>Save Key Dates
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-secondary" onclick="loadKeyDates()">
+                                                        <i class="fas fa-sync-alt me-2"></i>Reload
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Current Key Dates Display -->
+                                    <div class="card shadow mt-4">
+                                        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #6610f2;">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-eye me-2"></i>Current Key Dates
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="currentKeyDates">
+                                                <!-- Current key dates will be loaded here -->
+                                                <p class="text-muted">Loading...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Info Sidebar -->
+                                <div class="col-lg-4">
+                                    <div class="card shadow">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-lightbulb me-2"></i>Tips
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="small mb-0">
+                                                <li class="mb-2">Set clear and realistic dates for each admission stage</li>
+                                                <li class="mb-2">Ensure assessment period has sufficient time between start and end</li>
+                                                <li class="mb-2">Decision date should be after assessments end</li>
+                                                <li class="mb-2">Changes will immediately reflect on the Admissions page</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -555,38 +675,54 @@
 
         async function initSupabase() {
             try {
-                const response = await fetch('/api/get-supabase');
-                if (!response.ok) {
-                    // If API endpoint fails, use shared client as fallback
-                    console.warn('API endpoint failed, using shared Supabase client');
+                // For local development, check if API endpoint exists
+                const response = await fetch('/api/get-supabase').catch(() => null);
+                
+                if (!response || !response.ok) {
+                    // API endpoint doesn't exist (local dev) - use shared client
+                    console.log('Local development mode - using shared Supabase client');
+                    
+                    // Wait for shared client to be ready
                     supabase = window.getSupabaseClient();
                     if (!supabase) {
-                        // Wait for shared client to initialize (max 3 seconds)
+                        console.log('Waiting for Supabase client to initialize...');
                         await new Promise((resolve) => {
-                            const timeout = setTimeout(resolve, 3000);
-                            if (window.getSupabaseClient()) {
-                                clearTimeout(timeout);
+                            const timeout = setTimeout(() => {
+                                console.warn('Timeout waiting for Supabase client');
                                 resolve();
-                            } else {
-                                window.addEventListener('supabaseReady', function() {
+                            }, 5000);
+                            
+                            const checkClient = () => {
+                                supabase = window.getSupabaseClient();
+                                if (supabase) {
                                     clearTimeout(timeout);
                                     resolve();
-                                }, { once: true });
-                            }
+                                }
+                            };
+                            
+                            // Check immediately
+                            checkClient();
+                            
+                            // Also listen for ready event
+                            window.addEventListener('supabaseReady', function() {
+                                clearTimeout(timeout);
+                                checkClient();
+                                resolve();
+                            }, { once: true });
                         });
+                        
                         supabase = window.getSupabaseClient();
                     }
                 } else {
+                    // Production mode - use API credentials
                     const { url, anonKey } = await response.json();
                     SUPABASE_URL = url;
                     SUPABASE_ANON_KEY = anonKey;
                     
                     if (SUPABASE_URL && SUPABASE_ANON_KEY && typeof window.supabase !== 'undefined' && window.supabase && window.supabase.createClient) {
-                        // Override with API credentials if available
                         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                         console.log('Supabase initialized with API credentials');
                     } else {
-                        // Fallback to shared client
                         supabase = window.getSupabaseClient();
                     }
                 }
@@ -595,12 +731,14 @@
                     throw new Error('Supabase client could not be initialized');
                 }
                 
-                console.log('Supabase initialized successfully');
+                console.log('✅ Supabase initialized successfully');
+                console.log('Supabase client:', supabase);
             } catch (err) {
-                console.error('Supabase init error:', err);
-                // Try to use shared client as fallback
+                console.error('❌ Supabase init error:', err);
+                // Last resort fallback
                 supabase = window.getSupabaseClient();
                 if (!supabase) {
+                    console.error('❌ Could not get shared Supabase client');
                     supabase = null;
                 }
             }
@@ -995,6 +1133,7 @@
             loadGallery();
             loadFaculty();
             loadSyllabi();
+            loadKeyDates();
         }
 
         // Function to show login error
@@ -1656,7 +1795,215 @@
             if (syllabusForm) {
                 syllabusForm.addEventListener('submit', saveSyllabus);
             }
+            
+            // Add event listener for key dates form
+            const keyDatesForm = document.getElementById('keyDatesForm');
+            if (keyDatesForm) {
+                keyDatesForm.addEventListener('submit', saveKeyDates);
+            }
         });
+
+        // Key Dates Management Functions
+        async function loadKeyDates() {
+            if (!supabase) {
+                console.error('❌ Supabase not initialized in loadKeyDates');
+                document.getElementById('currentKeyDates').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Supabase not initialized. Please refresh the page.
+                    </div>
+                `;
+                return;
+            }
+
+            console.log('Loading key dates from Supabase...');
+            try {
+                const { data, error } = await supabase
+                    .from('key_dates')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                const currentKeyDatesDiv = document.getElementById('currentKeyDates');
+                
+                if (data) {
+                    // Populate form with existing data
+                    document.getElementById('keyDatesId').value = data.id || '';
+                    document.getElementById('applicationsOpen').value = data.applications_open || '';
+                    document.getElementById('assessmentsStart').value = data.assessments_start || '';
+                    document.getElementById('assessmentsEnd').value = data.assessments_end || '';
+                    document.getElementById('decisions').value = data.decisions || '';
+
+                    // Format dates for display (timezone-safe)
+                    const formatDate = (dateStr) => {
+                        if (!dateStr) return 'Not set';
+                        // Parse date string manually to avoid timezone issues
+                        const parts = dateStr.split('-');
+                        const year = parseInt(parts[0]);
+                        const month = parseInt(parts[1]) - 1; // Month is 0-indexed
+                        const day = parseInt(parts[2]);
+                        
+                        // Create date in local timezone
+                        const date = new Date(year, month, day);
+                        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    };
+
+                    currentKeyDatesDiv.innerHTML = `
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><i class="fas fa-calendar-check me-2 text-success"></i>Applications Open:</strong>
+                                        <p class="mb-0 text-muted">${formatDate(data.applications_open)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><i class="fas fa-calendar-week me-2 text-primary"></i>Assessments:</strong>
+                                        <p class="mb-0 text-muted">${formatDate(data.assessments_start)} - ${formatDate(data.assessments_end)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><i class="fas fa-envelope me-2 text-info"></i>Decisions:</strong>
+                                        <p class="mb-0 text-muted">${formatDate(data.decisions)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item bg-light">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>Last updated: ${new Date(data.updated_at).toLocaleString('en-US')}
+                                </small>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // No data yet - show placeholder
+                    currentKeyDatesDiv.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No key dates set yet. Please fill out the form above to set admission dates.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading key dates:', error);
+                showErrorAlert('Failed to load key dates: ' + error.message);
+            }
+        }
+
+        async function saveKeyDates(event) {
+            event.preventDefault();
+            
+            console.log('saveKeyDates called');
+            console.log('Supabase client:', supabase);
+            
+            if (!supabase) {
+                console.error('❌ Supabase not initialized in saveKeyDates');
+                showErrorAlert('Supabase not initialized. Please refresh the page and try again.');
+                return;
+            }
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const keyDatesId = formData.get('id');
+            
+            console.log('Form data:', {
+                id: keyDatesId,
+                applications_open: formData.get('applications_open'),
+                assessments_start: formData.get('assessments_start'),
+                assessments_end: formData.get('assessments_end'),
+                decisions: formData.get('decisions')
+            });
+
+            // Get form values
+            const applicationsOpen = formData.get('applications_open');
+            const assessmentsStart = formData.get('assessments_start');
+            const assessmentsEnd = formData.get('assessments_end');
+            const decisions = formData.get('decisions');
+
+            // Validation: assessments_end should be after assessments_start
+            if (new Date(assessmentsEnd) < new Date(assessmentsStart)) {
+                showErrorAlert('Assessment end date must be after start date');
+                return;
+            }
+
+            // Validation: decisions should be after assessments_end
+            if (new Date(decisions) < new Date(assessmentsEnd)) {
+                showErrorAlert('Decisions date should be after assessments end date');
+                return;
+            }
+
+            try {
+                const submitButton = document.getElementById('keyDatesSubmitBtn');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+
+                const keyDatesData = {
+                    applications_open: applicationsOpen,
+                    assessments_start: assessmentsStart,
+                    assessments_end: assessmentsEnd,
+                    decisions: decisions,
+                    updated_at: new Date().toISOString()
+                };
+
+                let result;
+                if (keyDatesId) {
+                    // Update existing key dates
+                    console.log('Updating key dates with id:', keyDatesId);
+                    result = await supabase
+                        .from('key_dates')
+                        .update(keyDatesData)
+                        .eq('id', keyDatesId);
+                    console.log('Update result:', result);
+                } else {
+                    // Insert new key dates
+                    console.log('Inserting new key dates');
+                    keyDatesData.created_at = new Date().toISOString();
+                    result = await supabase
+                        .from('key_dates')
+                        .insert([keyDatesData]);
+                    console.log('Insert result:', result);
+                }
+
+                if (result.error) {
+                    console.error('❌ Supabase operation error:', result.error);
+                    throw result.error;
+                }
+                
+                console.log('✅ Key dates saved successfully');
+
+                submitButton.innerHTML = '<i class="fas fa-check me-2"></i>Saved!';
+                
+                showSuccessModal(
+                    'Key Dates Saved!',
+                    'Admission key dates have been successfully updated and are now visible on the Admissions page.'
+                );
+                
+                // Reload key dates to show updated info
+                setTimeout(() => {
+                    loadKeyDates();
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error saving key dates:', error);
+                showErrorAlert('Failed to save key dates: ' + error.message);
+                
+                const submitButton = document.getElementById('keyDatesSubmitBtn');
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Save Key Dates';
+            }
+        }
     </script>
 </body>
 </html>
