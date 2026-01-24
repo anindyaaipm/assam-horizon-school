@@ -134,15 +134,23 @@
                                             </h5>
                                         </div>
                                         <div class="card-body">
-                                            <form id="noticeForm">
+                                            <form id="noticeForm" enctype="multipart/form-data">
                                                 <input type="hidden" id="noticeId" name="id">
                                                 <div class="mb-3">
                                                     <label for="noticeTitle" class="form-label">Notice Title *</label>
                                                     <input type="text" class="form-control" id="noticeTitle" name="title" placeholder="Enter notice title" required>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="noticeBody" class="form-label">Notice Content *</label>
-                                                    <textarea class="form-control" id="noticeBody" name="body" rows="5" placeholder="Enter notice content" required></textarea>
+                                                    <label for="noticeBody" class="form-label">Notice Content</label>
+                                                    <textarea class="form-control" id="noticeBody" name="body" rows="5" placeholder="Enter notice content (optional if image is uploaded)"></textarea>
+                                                    <div class="form-text">Leave empty if you want an image-only notice</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="noticeImage" class="form-label">
+                                                        <i class="fas fa-image me-1"></i>Notice Image (Optional)
+                                                    </label>
+                                                    <input type="file" class="form-control" id="noticeImage" name="image" accept="image/*">
+                                                    <div class="form-text">Upload an image for visual notices. Supported formats: JPG, PNG, GIF. Max size: 5MB</div>
                                                 </div>
                                                 <div class="d-flex gap-2">
                                                     <button type="submit" class="btn btn-primary" id="noticeSubmitBtn">
@@ -961,32 +969,55 @@
             const noticeId = formData.get('id');
             const title = formData.get('title');
             const body = formData.get('body');
+            const imageFile = formData.get('image');
+            
+            // Validation: Either body or image must be provided
+            if (!body && (!imageFile || imageFile.size === 0)) {
+                showErrorAlert('Please provide either notice content or an image (or both)');
+                return;
+            }
             
             try {
+                const submitButton = document.getElementById('noticeSubmitBtn');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+
+                let imageUrl = '';
+                
+                // Upload image to Supabase Storage if provided
+                if (imageFile && imageFile.size > 0) {
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading image...';
+                    imageUrl = await uploadImageToBucket(imageFile, 'gallery-images');
+                }
+                
+                const noticeData = {
+                    title: title,
+                    body: body || '',
+                    updated_at: new Date().toISOString()
+                };
+                
+                // Add image URL if uploaded
+                if (imageUrl) {
+                    noticeData.image_url = imageUrl;
+                }
+
                 if (noticeId) {
                     // Update existing notice
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
                     const { data, error } = await supabase
                         .from('notices')
-                        .update({
-                            title: title,
-                            body: body,
-                            updated_at: new Date().toISOString()
-                        })
+                        .update(noticeData)
                         .eq('id', noticeId);
 
                     if (error) throw error;
                     showSuccessModal('Notice Updated', 'Your notice has been successfully updated!');
                 } else {
                     // Insert new notice
+                    noticeData.created_at = new Date().toISOString();
                     const { data, error } = await supabase
                         .from('notices')
-                        .insert([
-                            {
-                                title: title,
-                                body: body,
-                                created_at: new Date().toISOString()
-                            }
-                        ]);
+                        .insert([noticeData]);
 
                     if (error) throw error;
                     showNoticePublishedModal();
@@ -995,11 +1026,17 @@
                 // Reset form and reload notices
                 document.getElementById('noticeForm').reset();
                 document.getElementById('noticeId').value = '';
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
                 loadNotices();
                 
             } catch (error) {
                 console.error('Error saving notice:', error);
-                showErrorAlert('Error saving notice. Please try again.');
+                showErrorAlert('Error saving notice: ' + (error.message || 'Please try again.'));
+                
+                const submitButton = document.getElementById('noticeSubmitBtn');
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Publish Notice';
             }
         });
 
@@ -1184,10 +1221,20 @@
 
                     return `
                         <div class="border-bottom pb-3 mb-3">
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                ${notice.image_url ? `
+                                    <div class="flex-shrink-0">
+                                        <img src="${notice.image_url}" 
+                                             alt="${escapeHtml(notice.title)}" 
+                                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />
+                                    </div>
+                                ` : ''}
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-1">${escapeHtml(notice.title)}</h6>
-                                    <p class="text-muted small mb-1">${escapeHtml(notice.body).substring(0, 100)}${notice.body.length > 100 ? '...' : ''}</p>
+                                    <h6 class="mb-1">
+                                        ${escapeHtml(notice.title)}
+                                        ${notice.image_url ? '<span class="badge bg-info ms-2"><i class="fas fa-image"></i></span>' : ''}
+                                    </h6>
+                                    ${notice.body ? `<p class="text-muted small mb-1">${escapeHtml(notice.body).substring(0, 100)}${notice.body.length > 100 ? '...' : ''}</p>` : '<p class="text-muted small mb-1 fst-italic">Image-only notice</p>'}
                                     <small class="text-muted">
                                         <i class="fas fa-calendar-alt me-1"></i>${createdDate}
                                     </small>
@@ -1376,7 +1423,29 @@
                 // Populate form
                 document.getElementById('noticeId').value = notice.id;
                 document.getElementById('noticeTitle').value = notice.title;
-                document.getElementById('noticeBody').value = notice.body;
+                document.getElementById('noticeBody').value = notice.body || '';
+                
+                // Show existing image preview if available
+                const imageInput = document.getElementById('noticeImage');
+                if (notice.image_url) {
+                    // Create preview of existing image
+                    let existingPreview = document.getElementById('noticeImagePreview');
+                    if (!existingPreview) {
+                        existingPreview = document.createElement('div');
+                        existingPreview.id = 'noticeImagePreview';
+                        existingPreview.className = 'mt-2';
+                        imageInput.parentNode.appendChild(existingPreview);
+                    }
+                    existingPreview.innerHTML = `
+                        <div class="d-flex align-items-center gap-2 p-2 bg-light rounded">
+                            <img src="${notice.image_url}" alt="Current image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;" />
+                            <div class="small">
+                                <strong>Current image</strong><br>
+                                <span class="text-muted">Upload new image to replace</span>
+                            </div>
+                        </div>
+                    `;
+                }
                 
                 // Update button text and show cancel button
                 document.getElementById('noticeSubmitBtn').innerHTML = '<i class="fas fa-save me-2"></i>Update Notice';
@@ -1416,6 +1485,12 @@
             document.getElementById('noticeId').value = '';
             document.getElementById('noticeSubmitBtn').innerHTML = '<i class="fas fa-paper-plane me-2"></i>Publish Notice';
             document.getElementById('noticeCancelBtn').style.display = 'none';
+            
+            // Remove image preview if it exists
+            const existingPreview = document.getElementById('noticeImagePreview');
+            if (existingPreview) {
+                existingPreview.remove();
+            }
         }
 
         // CRUD Operations for Gallery
